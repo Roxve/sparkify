@@ -2,7 +2,8 @@ import nextcord
 from nextcord.ext import commands
 import pickledb
 import os
-
+import random
+import datetime
 # bot setup
 token = os.environ.get('token')
 intents = nextcord.Intents.default()
@@ -46,6 +47,17 @@ async def isSetup(guild_id, user_id):
     else:
         return True;
 
+async def timeoutUsage(guild_id, user_id, command, ms):
+    await set_data(guild_id, user_id, f'{command}_timeout', (datetime.datetime.now().timestamp() * 1000) + ms)
+
+
+async def isTimeouted(guild_id, user_id, command):
+    timeout = await get_data(guild_id, user_id, f'{command}_timeout')   
+    if timeout is False:
+        return False
+    return timeout > (datetime.datetime.now().timestamp() * 1000)
+    
+
 @bot.event
 async def on_ready():
     print(f'logged in as {bot.user}')
@@ -65,7 +77,10 @@ async def help(interaction: nextcord.Interaction):
     - etc: 
         - /help -> displays this help
 - enconomy:
-    - /balance -> displays user balance"""
+    - /balance -> displays user balance
+    - /set-money -> sets user money (admin)
+    - /give-money -> gives a user money from balance
+    - /rob -> robs a person"""
 )
 
 
@@ -95,7 +110,37 @@ async def set_money(interaction: nextcord.Interaction, money: int, user: nextcor
     await reply(interaction, content=f'successfully set {user} money to {money}')
 
 
+@bot.slash_command("rob", "robs a users money")
+async def rob(interaction: nextcord.Interaction, user: nextcord.User):
+    robber = interaction.user    
+    guild_id = interaction.guild.id
+    
+    if await isTimeouted(guild_id, robber.id, "rob"):
+        await reply(interaction, content=f'you have to wait for 5 hours to attempt robbing another person!')
+        return
+        
+    random_num = random.randint(0,99)
+    robber_money = await get_data(guild_id, robber.id, 'money')
+    user_money = await get_data(guild_id, user.id, 'money')    
+    
+    if random_num < 42:
+        await timeoutUsage(guild_id, robber.id, "rob", 18000000)
+        money = random.randint(1, round(user_money / 3.5))
 
+        await set_data(guild_id, user.id, 'money', user_money - money)
+        await set_data(guild_id, robber.id, 'money', robber_money + money)
+        
+        await reply(interaction, content=f'{robber} robbed {money} from {user}')
+    else:
+
+        money = random.randint(1, round(robber_money / 4))
+        
+        await set_data(guild_id, robber.id, 'money', robber_money - money)        
+        
+        await timeoutUsage(guild_id, robber.id, "rob", 18000000)
+        await reply(interaction, content=f'{robber} faild robbing {user}, you have been fined {money}')
+
+    
 @bot.slash_command("give-money", "sets user money")
 async def set_money(interaction: nextcord.Interaction, money: int, user: nextcord.User):
     money = abs(money) # makes money positive to avoid errors
