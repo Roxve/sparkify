@@ -6,6 +6,19 @@ async def say(ctx , msg: str):
     await ctx.respond("success", ephemeral=True)
     await ctx.channel.send(msg)
 
+@bot.slash_command(name="edit", description="edits a bot message",default_member_permissions=discord.Permissions(administrator=True))
+async def edit(ctx , content: str, message_link: str):
+    guild = ctx.guild.id
+    message_link = message_link.replace(f"https://discord.com/channels/{guild}/", "")
+    ids = message_link.split('/') 
+    ids = [int(ids[0]), int(ids[1])]
+    
+    channel: discord.Channel = bot.get_channel(ids[0])
+    message = await channel.fetch_message(ids[1])
+    await message.edit(content=content)
+    await ctx.respond("success", ephemeral=True)
+
+
 class RoleButton(discord.ui.Button):
     role_id = 0
     def __init__(self,label, style, role_id: int): 
@@ -45,7 +58,7 @@ class ButtonsView(discord.ui.View):
             #self.add_item(RoleButton(label, discord.ButtonStyle.primary, role.id))
 
 
-@bot.slash_command(name="add-button",description="adds a role button to a bot message",default_member_permissions=discord.Permissions(administrator=True))
+@bot.slash_command(name="add-role-button",description="adds a role button to a bot message",default_member_permissions=discord.Permissions(administrator=True))
 async def add_role_button(ctx ,label: str, role: discord.Role,message_link: str):
     guild = ctx.guild.id
     message_link = message_link.replace(f"https://discord.com/channels/{guild}/", "")
@@ -66,7 +79,31 @@ async def add_role_button(ctx ,label: str, role: discord.Role,message_link: str)
     try:
         await message.edit(message.content, view=view)
     except:
-        await ctx.respond("roles buttons cannot be duplicate!", ephemeral=True)    
+        await ctx.respond("roles buttons cannot be duplicate or message is non bot message!", ephemeral=True)    
         return
     await ctx.respond("success", ephemeral=True)
     
+@bot.slash_command(name="remove-button",description="removes a button from a bot message",default_member_permissions=discord.Permissions(administrator=True))
+async def remove_button(ctx ,button: int,message_link: str):
+    guild = ctx.guild.id
+    message_link = message_link.replace(f"https://discord.com/channels/{guild}/", "")
+    ids = message_link.split('/') 
+    ids = [int(ids[0]), int(ids[1])]
+    
+    channel: discord.Channel = bot.get_channel(ids[0])
+    message = await channel.fetch_message(ids[1])
+    message_view = discord.ui.View.from_message(message) 
+    
+    view = None
+    if message_view is None:
+        view = ButtonsView()
+    else:
+        view = message_view
+    if view.children.__len__() < button:
+        await ctx.respond(f"there is only {view.children.__len__()} buttons in message!")
+        return
+    view.remove_item(view.children[button - 1])
+    
+    await message.edit(message.content, view=view)
+    await ctx.respond("success", ephemeral=True)
+ 
