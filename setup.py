@@ -12,22 +12,22 @@ intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
 
-bot = commands.Bot(intents=intents, command_prefix='!')
+bot = discord.Bot(intents=intents)
 
 # data setup
 data = pickledb.load("data.db", True)
 
-async def reply(interaction: discord.Interaction, content="", embeds=[]):
-    command_name = interaction.data['name']
+async def reply(ctx , content="", embeds=[]):
+    command_name = ctx.command.name
     embed = discord.Embed(
         #title=command_name,
         description=content,
         colour=discord.Color.blue()
     )
-    embed.set_author(name=f'/{command_name}', icon_url=interaction.user.avatar)
-    embed.set_footer(text=f'executed by {interaction.user.name}')
+    embed.set_author(name=f'/{command_name}', icon_url=ctx.user.avatar)
+    embed.set_footer(text=f'executed by {ctx.user.name}')
     
-    await interaction.response.send_message(embed=embed)
+    await ctx.respond(embed=embed)
 
 
 async def set_data(guild_id,obj_id, obj_prop, value):

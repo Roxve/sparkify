@@ -2,8 +2,8 @@ from setup import *
 
 
 @bot.slash_command()
-async def help(interaction: discord.Interaction):
-    await reply(interaction, content=
+async def help(ctx):
+    await reply(ctx, content=
     """
     - etc: 
         - /help -> displays this help
