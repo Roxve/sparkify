@@ -3,12 +3,12 @@ import random
 
 # enconmy
 @bot.slash_command("balance", "displays user balance")
-async def balance(interaction: nextcord.Interaction, user: nextcord.User = None):
+async def balance(interaction: discord.Interaction, user: discord.User = None):
     if user is None:
         user = interaction.user
-    embed = nextcord.Embed(
+    embed = discord.Embed(
         #title=f'{user.name}',
-        color=nextcord.Color.blue()
+        color=discord.Color.blue()
     )
     await isSetup(interaction.guild.id ,user.id)
     embed.set_author(name=user.name, icon_url=user.avatar)
@@ -16,8 +16,8 @@ async def balance(interaction: nextcord.Interaction, user: nextcord.User = None)
     embed.add_field(name='Money:', value=f'🪙 {money}')
     await interaction.response.send_message(embed=embed)
 
-@bot.slash_command("set-money", "sets user money",default_member_permissions=nextcord.Permissions(administrator=True))
-async def set_money(interaction: nextcord.Interaction, money: int, user: nextcord.User = None):
+@bot.slash_command("set-money", "sets user money",default_member_permissions=discord.Permissions(administrator=True))
+async def set_money(interaction: discord.Interaction, money: int, user: discord.User = None):
     if user is None:
         user = interaction.user
     money = abs(money)
@@ -28,7 +28,7 @@ async def set_money(interaction: nextcord.Interaction, money: int, user: nextcor
 
 
 @bot.slash_command("rob", "robs a users money")
-async def rob(interaction: nextcord.Interaction, user: nextcord.User):
+async def rob(interaction: discord.Interaction, user: discord.User):
     robber = interaction.user    
     guild_id = interaction.guild.id
     
@@ -59,7 +59,7 @@ async def rob(interaction: nextcord.Interaction, user: nextcord.User):
 
     
 @bot.slash_command("give-money", "gives user an ammount of money")
-async def give_money(interaction: nextcord.Interaction, money: int, user: nextcord.User):
+async def give_money(interaction: discord.Interaction, money: int, user: discord.User):
     money = abs(money) # makes money positive to avoid errors
     guild_id = interaction.guild.id
     giver = interaction.user
@@ -83,7 +83,7 @@ async def give_money(interaction: nextcord.Interaction, money: int, user: nextco
 
 
 @bot.slash_command("list-jobs", "lists server jobs")
-async def list_jobs(interaction: nextcord.Interaction):
+async def list_jobs(interaction: discord.Interaction):
     guild = interaction.guild.id
     await SetupGuild(guild)
     jobs = await get_data(guild, '', 'jobs')
@@ -93,7 +93,7 @@ async def list_jobs(interaction: nextcord.Interaction):
     await reply(interaction, content=results)
 
 @bot.slash_command("choose-job", "choose your job")
-async def choose_job(interaction: nextcord.Interaction, job: str):
+async def choose_job(interaction: discord.Interaction, job: str):
     guild = interaction.guild.id
     user = interaction.user
     await setup_usr(guild, user.id)
@@ -116,7 +116,7 @@ async def choose_job(interaction: nextcord.Interaction, job: str):
 
 
 @bot.slash_command("work", "work your job!")
-async def work(interaction: nextcord.Interaction):
+async def work(interaction: discord.Interaction):
     user = interaction.user
     guild = interaction.guild.id
     if await isTimeouted(guild, user.id, 'work'):

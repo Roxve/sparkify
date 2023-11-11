@@ -1,8 +1,8 @@
 from setup import *
 
 
-@bot.slash_command("help", "displays commands")
-async def help(interaction: nextcord.Interaction):
+@bot.slash_command()
+async def help(interaction: discord.Interaction):
     await reply(interaction, content=
     """
     - etc: 

@@ -1,28 +1,28 @@
 
-import nextcord
-from nextcord.ext import commands
+import discord
+from discord.ext import commands
 import pickledb
 import os
 import random
 import datetime
 # bot setup
 token = os.environ.get('token')
-intents = nextcord.Intents.default()
+intents = discord.Intents.default()
 
 intents.members = True
 intents.message_content = True
 
-bot = commands.Bot(intents=intents)
+bot = commands.Bot(intents=intents, command_prefix='!')
 
 # data setup
 data = pickledb.load("data.db", True)
 
-async def reply(interaction: nextcord.Interaction, content="", embeds=[]):
+async def reply(interaction: discord.Interaction, content="", embeds=[]):
     command_name = interaction.data['name']
-    embed = nextcord.Embed(
+    embed = discord.Embed(
         #title=command_name,
         description=content,
-        colour=nextcord.Color.blue()
+        colour=discord.Color.blue()
     )
     embed.set_author(name=f'/{command_name}', icon_url=interaction.user.avatar)
     embed.set_footer(text=f'executed by {interaction.user.name}')
